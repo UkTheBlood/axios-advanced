@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import api from './axios/api'
 
 function App() {
 
@@ -15,14 +16,15 @@ function App() {
 
   // 조회 함수
   const fetchTodos = async () => {
-    const { data } = await axios.get('http://localhost:4000/todos');
-    // console.log("data", data)
+    // const { data } = await axios.get('http://localhost:4000/todos');
+    const { data } = await api.get('/todos');
     setTodos(data);
   }
 
   // 추가 함수
   const onSubmitHandler = async () => {
-    axios.post('http://localhost:4000/todos', inputValue);
+    // axios.post('http://localhost:4000/todos', inputValue);
+    api.post('/todos', inputValue)
     fetchTodos();    // 서버와 동기화 X
     setInputValue({
       title: ""
@@ -31,7 +33,8 @@ function App() {
 
   // 삭제 함수
   const onDeleteButtonHandler = async (id) => { // 항상 인자를 받아야 함
-    axios.delete(`http://localhost:4000/todos/${id}`)
+    // axios.delete(`http://localhost:4000/todos/${id}`)
+    api.delete(`/todos/${id}`)
     setTodos(todos.filter((item) => {
       return item.id !== id;
     }))
@@ -39,9 +42,14 @@ function App() {
 
   // 수정 함수
   const onUpdateButtonHanlder = async () => {
-    axios.patch(`http://localhost:4000/todos/${targetId}`, {
-      title: targetTitle    // 바꿀 내용 => title을 targetTitle로 바꾸자
-    });
+    // axios.patch(`http://localhost:4000/todos/${targetId}`, {
+    //   title: targetTitle    // 바꿀 내용 => title을 targetTitle로 바꾸자
+    // });
+
+    api.patch(`/todos/${targetId}`, {
+      title: targetTitle
+    })
+
     setTodos(todos.map((item) => {
       if(item.id == targetId) {       
         // item의 id가 targetId와 같은 경우 (형이 맞지 않아 동등연산자 사용)
@@ -50,6 +58,9 @@ function App() {
         return item
       }
     }))
+    
+    setTargetId('')
+    setTargetId('')
   }
 
   useEffect(() => {
