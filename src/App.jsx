@@ -8,22 +8,49 @@ function App() {
     title: '',
   });
 
+  const [targetId, setTargetId] = useState('');
+  const [targetTitle, setTargetTitle] = useState('');
+
+
+
+  // 조회 함수
   const fetchTodos = async () => {
     const { data } = await axios.get('http://localhost:4000/todos');
     // console.log("data", data)
     setTodos(data);
   }
 
-  const onSubmitHandler = async () => {   // 항상 인자를 받아야 함
+  // 추가 함수
+  const onSubmitHandler = async () => {
     axios.post('http://localhost:4000/todos', inputValue);
-    setTodos([...todos, inputValue]);    // 서버와 동기화 X
+    fetchTodos();    // 서버와 동기화 X
+    setInputValue({
+      title: ""
+    });
   }
 
-  const onDeleteButtonHandler = async () => {
-
+  // 삭제 함수
+  const onDeleteButtonHandler = async (id) => { // 항상 인자를 받아야 함
+    axios.delete(`http://localhost:4000/todos/${id}`)
+    setTodos(todos.filter((item) => {
+      return item.id !== id;
+    }))
   }
 
-  // console.log(todos)
+  // 수정 함수
+  const onUpdateButtonHanlder = async () => {
+    axios.patch(`http://localhost:4000/todos/${targetId}`, {
+      title: targetTitle    // 바꿀 내용 => title을 targetTitle로 바꾸자
+    });
+    setTodos(todos.map((item) => {
+      if(item.id == targetId) {       
+        // item의 id가 targetId와 같은 경우 (형이 맞지 않아 동등연산자 사용)
+        return {...item, title: targetTitle}    // item의 title을 targetTitle로 바꿔줘
+      } else {                        // 아니면 냅둬
+        return item
+      }
+    }))
+  }
 
   useEffect(() => {
     // db로부터 값을 가져올 것이다.
@@ -32,6 +59,27 @@ function App() {
 
   return (
     <div>
+      <div>
+        {/* 수정 영역 */}
+        <input type="text" placeholder="수정할 아이디"
+          value={targetId}
+          onChange={(e) => {
+            setTargetId(e.target.value)
+          }}
+        />
+
+        <input type="text" placeholder="수정할 내용"
+          value={targetTitle}
+          onChange={(e) => {
+            setTargetTitle(e.target.value)
+          }}
+        />
+
+        <button onClick={onUpdateButtonHanlder}>수정!</button>
+      </div>
+
+      <br />
+
       <div>
         {/* input 영역 */}
         <form onSubmit={(e) => {
